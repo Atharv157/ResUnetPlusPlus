@@ -13,14 +13,17 @@ from metrics import dice_coef, dice_loss  # Custom metrics in PyTorch
 
 if __name__ == "__main__":
     ## Path
-    file_path = "files/"
-    model_path = "files/resunetplusplus.pth"
+    file_path = "../drive/MyDrive/polyp_segmentation/ResUnetPlusPlus/files/"
+    # model_path = "../drive/MyDrive/polyp_segmentation/ResUnetPlusPlus/files/resunetplusplus.pth"
+
+    periodic_model_dir = os.path.join(file_path, "checkpoints")
+    os.makedirs(periodic_model_dir, exist_ok=True)
 
     ## Create files folder if not exists
     os.makedirs(file_path, exist_ok=True)
 
-    train_path = "new_data/kvasir_segmentation_dataset/train/"
-    valid_path = "new_data/kvasir_segmentation_dataset/valid/"
+    train_path = "new_data/polyp-dataset/train/"
+    valid_path = "new_data/polyp-dataset/valid/"
 
     ## Training data
     train_image_paths = glob(os.path.join(train_path, "images", "*"))
@@ -100,9 +103,22 @@ if __name__ == "__main__":
         print(f"Epoch {epoch + 1}/{epochs} | Train Loss: {avg_train_loss:.4f} | Val Loss: {avg_val_loss:.4f}")
 
         ## Save model if improved
+        # if avg_val_loss < best_val_loss:
+        #     best_val_loss = avg_val_loss
+        #     torch.save(model.state_dict(), model_path)
+
+        # Save best model
         if avg_val_loss < best_val_loss:
             best_val_loss = avg_val_loss
-            torch.save(model.state_dict(), model_path)
+            best_model_path = os.path.join(file_path, "resunetplusplus_best.pth")
+            torch.save(model.state_dict(), best_model_path)
+            print(f"Saved new best model at epoch {epoch + 1}")
+
+        # Save model every 10 epochs
+        if (epoch + 1) % 10 == 0:
+            epoch_model_path = os.path.join(periodic_model_dir, f"resunetplusplus_epoch{epoch+1}.pth")
+            torch.save(model.state_dict(), epoch_model_path)
+            print(f"Saved model at epoch {epoch + 1}")
 
         ## Learning rate scheduler (if needed)
         if epoch % 5 == 0:
