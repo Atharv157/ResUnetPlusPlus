@@ -99,7 +99,7 @@ if __name__ == "__main__":
         precision_metric.reset()
         recall_metric.reset()
         iou_metric.reset()
-        
+
         with torch.no_grad():
             for images, masks in valid_loader:
                 images, masks = images.to('cuda' if torch.cuda.is_available() else 'cpu'), masks.to('cuda' if torch.cuda.is_available() else 'cpu')
@@ -107,10 +107,33 @@ if __name__ == "__main__":
                 loss = dice_loss(masks, outputs)
                 running_val_loss += loss.item()
 
+                preds = torch.sigmoid(outputs)  # Apply sigmoid to get probabilities
+                preds = (preds > 0.5).float()  # Convert to binary predictions (0 or 1)
+
+                # Update metrics
+                precision_metric.update(preds, masks.int())  # Update precision metric
+                recall_metric.update(preds, masks.int())  # Update recall metric
+                iou_metric.update(preds, masks.int()) 
+
+
         avg_val_loss = running_val_loss / valid_steps
         writer.add_scalar('Loss/validation', avg_val_loss, epoch)
+        
+        precision = precision_metric.compute().item()  # Compute precision
+        recall = recall_metric.compute().item()  # Compute recall
+        iou = iou_metric.compute().item()  # Compute IoU
 
-        print(f"Epoch {epoch + 1}/{epochs} | Train Loss: {avg_train_loss:.4f} | Val Loss: {avg_val_loss:.4f}")
+        # Log to TensorBoard
+        # writer.add_scalar('Loss/validation', avg_val_loss, epoch)
+        writer.add_scalar('Metrics/precision', precision, epoch)
+        writer.add_scalar('Metrics/recall', recall, epoch)
+        writer.add_scalar('Metrics/iou', iou, epoch)
+
+        # Print metrics
+        print(f"Epoch {epoch + 1}/{epochs} | Train Loss: {avg_train_loss:.4f} | Val Loss: {avg_val_loss:.4f} | "
+            f"Precision: {precision:.4f} | Recall: {recall:.4f} | IoU: {iou:.4f}")
+
+        # print(f"Epoch {epoch + 1}/{epochs} | Train Loss: {avg_train_loss:.4f} | Val Loss: {avg_val_loss:.4f}")
 
         ## Save model if improved
         # if avg_val_loss < best_val_loss:
@@ -125,7 +148,7 @@ if __name__ == "__main__":
             print(f"Saved new best model at epoch {epoch + 1}")
 
         # Save model every 10 epochs
-        if (epoch + 1) % 10 == 0:
+        if (epoch + 1) % 5 == 0:
             epoch_model_path = os.path.join(periodic_model_dir, f"resunetplusplus_epoch{epoch+1}.pth")
             torch.save(model.state_dict(), epoch_model_path)
             print(f"Saved model at epoch {epoch + 1}")

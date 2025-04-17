@@ -16,9 +16,10 @@ def mask_to_3d(mask):
     return mask
 
 if __name__ == "__main__":
-    model_path = "files/resunetplusplus.pth"
-    save_path = "result"
-    test_path = "new_data/kvasir_segmentation_dataset/test/"
+    file_path = "../drive/MyDrive/polyp_segmentation/ResUnetPlusPlus/files/"
+    model_path = os.path.join(file_path, "resunetplusplus_best.pth")
+    save_path = os.path.join(file_path, "results")
+    test_path = "new_data/polyp-dataset/test/"
 
     image_size = 256
 
