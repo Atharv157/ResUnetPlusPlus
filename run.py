@@ -49,8 +49,9 @@ if __name__ == "__main__":
     valid_steps = len(valid_image_paths) // batch_size
 
     ## DataLoader (converted from DataGen)
-    train_dataset = KvasirSegDataset(image_size, train_image_paths, train_mask_paths)
-    valid_dataset = KvasirSegDataset(image_size, valid_image_paths, valid_mask_paths)
+    train_dataset = KvasirSegDataset(train_image_paths, train_mask_paths, image_size=image_size)
+    valid_dataset = KvasirSegDataset(valid_image_paths, valid_mask_paths, image_size=image_size)
+
 
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     valid_loader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=False)
