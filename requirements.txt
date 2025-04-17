@@ -1,0 +1,17 @@
+# Core Python libraries
+numpy
+opencv-python
+scikit-learn
+tqdm
+glob2
+Pillow
+
+# PyTorch and related tools
+torch
+torchvision
+torchaudio
+torchmetrics
+tensorboard
+
+# For image transformations (like rotate)
+scipy
