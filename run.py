@@ -65,9 +65,9 @@ if __name__ == "__main__":
     # precision_metric = Precision()
     # recall_metric = Recall()
     # iou_metric = IoU(num_classes=2)
-    precision_metric = Precision(task="binary").to('cuda' if torch.cuda.is_available() else 'cpu')
-    recall_metric = Recall(task="binary").to('cuda' if torch.cuda.is_available() else 'cpu')
-    iou_metric = JaccardIndex(task="binary").to('cuda' if torch.cuda.is_available() else 'cpu')
+    # precision_metric = Precision(task="binary").to('cuda' if torch.cuda.is_available() else 'cpu')
+    # recall_metric = Recall(task="binary").to('cuda' if torch.cuda.is_available() else 'cpu')
+    # iou_metric = JaccardIndex(task="binary").to('cuda' if torch.cuda.is_available() else 'cpu')
 
     ## TensorBoard
     writer = SummaryWriter(file_path)
@@ -97,9 +97,9 @@ if __name__ == "__main__":
         model.eval()
         running_val_loss = 0.0
 
-        precision_metric.reset()
-        recall_metric.reset()
-        iou_metric.reset()
+        # precision_metric.reset()
+        # recall_metric.reset()
+        # iou_metric.reset()
 
         with torch.no_grad():
             for images, masks in valid_loader:
@@ -112,17 +112,17 @@ if __name__ == "__main__":
                 preds = (preds > 0.5).float()  # Convert to binary predictions (0 or 1)
 
                 # Update metrics
-                precision_metric.update(preds, masks.int())  # Update precision metric
-                recall_metric.update(preds, masks.int())  # Update recall metric
-                iou_metric.update(preds, masks.int()) 
+                # precision_metric.update(preds, masks.int())  # Update precision metric
+                # recall_metric.update(preds, masks.int())  # Update recall metric
+                # iou_metric.update(preds, masks.int()) 
 
 
         avg_val_loss = running_val_loss / valid_steps
         writer.add_scalar('Loss/validation', avg_val_loss, epoch)
         
-        precision = precision_metric.compute().item()  # Compute precision
-        recall = recall_metric.compute().item()  # Compute recall
-        iou = iou_metric.compute().item()  # Compute IoU
+        # precision = precision_metric.compute().item()  # Compute precision
+        # recall = recall_metric.compute().item()  # Compute recall
+        # iou = iou_metric.compute().item()  # Compute IoU
 
         # Log to TensorBoard
         # writer.add_scalar('Loss/validation', avg_val_loss, epoch)
@@ -131,10 +131,10 @@ if __name__ == "__main__":
         writer.add_scalar('Metrics/iou', iou, epoch)
 
         # Print metrics
-        print(f"Epoch {epoch + 1}/{epochs} | Train Loss: {avg_train_loss:.4f} | Val Loss: {avg_val_loss:.4f} | "
-            f"Precision: {precision:.4f} | Recall: {recall:.4f} | IoU: {iou:.4f}")
+        # print(f"Epoch {epoch + 1}/{epochs} | Train Loss: {avg_train_loss:.4f} | Val Loss: {avg_val_loss:.4f} | "
+        #     f"Precision: {precision:.4f} | Recall: {recall:.4f} | IoU: {iou:.4f}")
 
-        # print(f"Epoch {epoch + 1}/{epochs} | Train Loss: {avg_train_loss:.4f} | Val Loss: {avg_val_loss:.4f}")
+        print(f"Epoch {epoch + 1}/{epochs} | Train Loss: {avg_train_loss:.4f} | Val Loss: {avg_val_loss:.4f}")
 
         ## Save model if improved
         # if avg_val_loss < best_val_loss:
