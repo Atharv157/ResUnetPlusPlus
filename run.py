@@ -9,7 +9,7 @@ from torch.utils.tensorboard import SummaryWriter
 from torchmetrics import Precision, Recall, JaccardIndex
 
 
-from data_generator import DataGen  # Custom Data Generator for PyTorch
+from data_generator import KvasirSegDataset  # Custom Data Generator for PyTorch
 from resunetplusplus import build_resunetplusplus  # Updated model import for PyTorch
 from metrics import dice_coef, dice_loss  # Custom metrics in PyTorch
 
@@ -49,8 +49,8 @@ if __name__ == "__main__":
     valid_steps = len(valid_image_paths) // batch_size
 
     ## DataLoader (converted from DataGen)
-    train_dataset = DataGen(image_size, train_image_paths, train_mask_paths, batch_size=batch_size)
-    valid_dataset = DataGen(image_size, valid_image_paths, valid_mask_paths, batch_size=batch_size)
+    train_dataset = KvasirSegDataset(image_size, train_image_paths, train_mask_paths, batch_size=batch_size)
+    valid_dataset = KvasirSegDataset(image_size, valid_image_paths, valid_mask_paths, batch_size=batch_size)
 
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     valid_loader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=False)
