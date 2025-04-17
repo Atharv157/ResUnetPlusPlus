@@ -4,8 +4,10 @@ import numpy as np
 from glob import glob
 from torch import optim
 from torch.utils.data import DataLoader
-from torchmetrics.classification import Precision, Recall, IoU
+# from torchmetrics.classification import Precision, Recall, IoU
 from torch.utils.tensorboard import SummaryWriter
+from torchmetrics import Precision, Recall, JaccardIndex
+
 
 from data_generator import DataGen  # Custom Data Generator for PyTorch
 from resunetplusplus import build_resunetplusplus  # Updated model import for PyTorch
@@ -59,9 +61,12 @@ if __name__ == "__main__":
 
     ## Optimizer and loss function
     optimizer = optim.NAdam(model.parameters(), lr=lr)
-    precision_metric = Precision()
-    recall_metric = Recall()
-    iou_metric = IoU(num_classes=2)
+    # precision_metric = Precision()
+    # recall_metric = Recall()
+    # iou_metric = IoU(num_classes=2)
+    precision_metric = Precision(task="binary").to('cuda' if torch.cuda.is_available() else 'cpu')
+    recall_metric = Recall(task="binary").to('cuda' if torch.cuda.is_available() else 'cpu')
+    iou_metric = JaccardIndex(task="binary").to('cuda' if torch.cuda.is_available() else 'cpu')
 
     ## TensorBoard
     writer = SummaryWriter(file_path)
@@ -90,6 +95,11 @@ if __name__ == "__main__":
         ## Validation loop
         model.eval()
         running_val_loss = 0.0
+
+        precision_metric.reset()
+        recall_metric.reset()
+        iou_metric.reset()
+        
         with torch.no_grad():
             for images, masks in valid_loader:
                 images, masks = images.to('cuda' if torch.cuda.is_available() else 'cpu'), masks.to('cuda' if torch.cuda.is_available() else 'cpu')
